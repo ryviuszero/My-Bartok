@@ -23,7 +23,7 @@ public class Card : MonoBehaviour
     public int rank;
     public Color color = Color.black;
     public string colS = "black";
-    public List<GameObject> decoCOs = new();
+    public List<GameObject> decoGOs = new();
     public List<GameObject> pipGOs = new();
     public GameObject back;
     public CardDefinition def;
