@@ -53,12 +53,59 @@ public class CardBartok : Card
                 }
                 else if (u >= 1)
                 {
-                    
+                    uC = 1;
+
+                    if (state == eCardState.toHand) state = eCardState.hand;
+                    else if (state == eCardState.toTarget) state = eCardState.target;
+                    else if (state == eCardState.toDrawpile) state = eCardState.drawpile;
+                    else if (state == eCardState.to) state = eCardState.idle;
+
+                    transform.localPosition = bezierPts[bezierPts.Count - 1];
+                    transform.rotation = bezierPtsRots[bezierPtsRots.Count - 1];
+
+                    timeStart = 0;
+
+                    if (reportFinishTo != null)
+                    {
+                        reportFinishTo.SendMessage("CBCallback", this);
+                        reportFinishTo = null;
+                    }
+                    else if (callbackPlayer != null)
+                    {
+                        callbackPlayer.CBCallback(this);
+                        callbackPlayer = null;
+                    }
+                }
+                else
+                {
+                    Vector3 pos = Utils.Bezier(uC, bezierPts);
+                    transform.localPosition = pos;
+                    Quaternion rotQ = Utils.Bezier(uC, bezierPtsRots);
+                    transform.rotation = rotQ;
+
+                    if (u > 0.5f)
+                    {
+                        SpriteRenderer sRend = spriteRenderers[0];
+                        if (sRend.sortingOrder != eventualSortOrder)
+                        {
+                            SetSortOrder(eventualSortOrder);
+                        }
+
+                        if (sRend.sortingLayerName != eventualSortLayer)
+                        {
+                            SetSortingLayerName(eventualSortLayer);
+                        }
+                    }
                 }
                 break;
-            
         }
         
+    }
+
+    public override void OnMouseUpAsButton()
+    {
+        Bartok.S.CardClicked(this);
+        base.OnMouseUpAsButton();
     }
 
     public void MoveTo(Vector3 ePos, Quaternion eRot)

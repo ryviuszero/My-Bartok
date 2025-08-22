@@ -1,9 +1,6 @@
 using System.Collections.Generic;
-using UnityEditor.Rendering.Universal;
-using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public enum eTurnState
 {
@@ -272,6 +269,38 @@ public class Bartok : MonoBehaviour
     {
         CURRENT_PLAYER = null;
         SceneManager.LoadScene("Bartok_Scene");
+    }
+
+    public void CardClicked(CardBartok card)
+    {
+        if (CURRENT_PLAYER.type != ePlayerType.human) return;
+        if (phase == eTurnState.waiting) return;
+
+        switch (card.state)
+        {
+            case eCardState.drawpile:
+                CardBartok newCard = CURRENT_PLAYER.AddCard(Draw());
+                newCard.callbackPlayer = CURRENT_PLAYER;
+
+                Utils.tr("Bartok:CardClicked()", "Draw", newCard.name);
+                phase = eTurnState.waiting;
+                break;
+            case eCardState.hand:
+                if (ValidPlay(card))
+                {
+                    CURRENT_PLAYER.RemoveCard(card);
+                    MoveToTarget(card);
+                    card.callbackPlayer = CURRENT_PLAYER;
+
+                    Utils.tr("Bartok:CardClicked()", "Play", card.name);
+                    phase = eTurnState.waiting;
+                }
+                else
+                {
+                    Utils.tr("Bartok:CardClicked()", "Attempted to Play", card.name);
+                }
+                break;
+        }
     }
 }
 
